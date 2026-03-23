@@ -1,0 +1,17 @@
+
+FIRST:
+Alpha : { a b c ε }
+Alpha' : { c ε }
+Start : { a b c }
+Start' : { d ε }
+a : { a }
+b : { b }
+c : { c }
+d : { d }
+ε : { ε }
+
+FOLLOW:
+Alpha : { $ }
+Alpha' : { $ a }
+Start : { d }
+Start' : { d }

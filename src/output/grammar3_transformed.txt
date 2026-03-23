@@ -1,0 +1,7 @@
+=== Original + Transformed Grammar ===
+
+After Left Factoring and Left Recursion Removal:
+
+Cond -> b 
+Stmt -> a | if Cond then Stmt Stmt' 
+Stmt' -> ε | else Stmt 

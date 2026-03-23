@@ -1,0 +1,9 @@
+=== Original + Transformed Grammar ===
+
+After Left Factoring and Left Recursion Removal:
+
+Expr -> Term Expr' 
+Expr' -> + Term Expr' | ε 
+Factor -> ( Expr ) | id 
+Term -> ( Expr ) Term' | id Term' 
+Term' -> * Factor Term' | ε 

@@ -1,0 +1,43 @@
+
+FIRST:
+( : { ( }
+) : { }
+* : { * }
++ : { + }
+- : { - }
+/ : { / }
+; : { ; }
+Expr : { ( id number }
+Expr' : { + - }
+Expr'' : { + - ε }
+Factor : { ( id number }
+Stmt : { begin if while }
+Stmt' : { else ε }
+StmtList : { begin if while }
+StmtList' : { ; ε }
+Term : { ( id number }
+Term' : { * / }
+Term'' : { * / ε }
+begin : { begin }
+do : { }
+else : { else }
+end : { }
+id : { id }
+if : { if }
+number : { number }
+then : { }
+while : { while }
+ε : { ε }
+
+FOLLOW:
+Expr : { $ }
+Expr' : { $ + - }
+Expr'' : { $ }
+Factor : { $ * + - / }
+Stmt : { ; else }
+Stmt' : { ; else }
+StmtList : { }
+StmtList' : { }
+Term : { $ + - }
+Term' : { $ * + - / }
+Term'' : { $ + - }

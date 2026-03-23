@@ -1,0 +1,8 @@
+Grammar is NOT LL(1)
+
+LL(1) Table:
+
+NT/T	$	a	b	else	if	then	
+Cond			Cond->b				
+Stmt		Stmt->a			Stmt->ifCondthenStmtStmt'		
+Stmt'				Stmt'->elseStmt			

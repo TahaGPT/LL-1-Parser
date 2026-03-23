@@ -1,0 +1,9 @@
+Grammar is NOT LL(1)
+
+LL(1) Table:
+
+NT/T	$	a	b	c	d	
+Alpha	Alpha->εAlpha'	Alpha->StartdAlpha'	Alpha->StartdAlpha'	Alpha->εAlpha'		
+Alpha'	Alpha'->ε	Alpha'->ε		Alpha'->cAlpha'		
+Start		Start->εAlpha'aStart'	Start->bStart'	Start->εAlpha'aStart'		
+Start'					Start'->ε	

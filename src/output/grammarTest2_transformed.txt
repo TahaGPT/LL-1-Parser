@@ -1,0 +1,7 @@
+=== Original + Transformed Grammar ===
+
+After Left Factoring and Left Recursion Removal:
+
+A -> B a | c 
+B -> c b B' | d B' 
+B' -> a b B' | ε 

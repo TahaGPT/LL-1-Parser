@@ -1,0 +1,15 @@
+=== Original + Transformed Grammar ===
+
+After Left Factoring and Left Recursion Removal:
+
+Expr -> Term Expr'' 
+Expr' -> + Term | - Term 
+Expr'' -> Expr' Expr'' | ε 
+Factor -> ( Expr ) | id | number 
+Stmt -> while Expr do Stmt | begin StmtList end | if Expr then Stmt Stmt' 
+Stmt' -> else Stmt | ε 
+StmtList -> while Expr do Stmt StmtList' | begin StmtList end StmtList' | if Expr then Stmt Stmt' StmtList' 
+StmtList' -> ; StmtList | ε 
+Term -> ( Expr ) Term'' | id Term'' | number Term'' 
+Term' -> * Factor | / Factor 
+Term'' -> Term' Term'' | ε 

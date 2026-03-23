@@ -1,0 +1,12 @@
+
+FIRST:
+First : { a ε }
+Second : { b }
+Start : { a b }
+a : { a }
+b : { b }
+ε : { ε }
+
+FOLLOW:
+First : { $ }
+Start : { }

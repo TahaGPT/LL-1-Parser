@@ -1,0 +1,5 @@
+Stmt -> if Expr then Stmt else Stmt | if Expr then Stmt | while Expr do Stmt | begin StmtList end
+StmtList -> Stmt ; StmtList | Stmt
+Expr -> Expr + Term | Expr - Term | Term
+Term -> Term * Factor | Term / Factor | Factor
+Factor -> ( Expr ) | id | number
