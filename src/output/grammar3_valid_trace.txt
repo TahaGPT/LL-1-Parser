@@ -1,0 +1,130 @@
+Parsing Trace  |  Source: input/grammar3_valid.txt
+==========================================================================================
+
+[String 1]  Input: a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Stmt                              a $                         Stmt -> a 
+2     $ a                                 a $                         Match a
+3     $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Stmt
+    └── a
+
+==========================================================================================
+
+[String 2]  Input: if b then a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Stmt                              if b then a $               Stmt -> if Cond then Stmt Stmt' 
+2     $ Stmt' Stmt then Cond if           if b then a $               Match if
+3     $ Stmt' Stmt then Cond              b then a $                  Cond -> b 
+4     $ Stmt' Stmt then b                 b then a $                  Match b
+5     $ Stmt' Stmt then                   then a $                    Match then
+6     $ Stmt' Stmt                        a $                         Stmt -> a 
+7     $ Stmt' a                           a $                         Match a
+8     $ Stmt'                             $                           Stmt' -> ε 
+9     $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Stmt
+    ├── if
+    ├── Cond
+    │   └── b
+    ├── then
+    ├── Stmt
+    │   └── a
+    └── Stmt'
+        └── ε
+
+==========================================================================================
+
+[String 3]  Input: if b then a else a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Stmt                              if b then a else a $        Stmt -> if Cond then Stmt Stmt' 
+2     $ Stmt' Stmt then Cond if           if b then a else a $        Match if
+3     $ Stmt' Stmt then Cond              b then a else a $           Cond -> b 
+4     $ Stmt' Stmt then b                 b then a else a $           Match b
+5     $ Stmt' Stmt then                   then a else a $             Match then
+6     $ Stmt' Stmt                        a else a $                  Stmt -> a 
+7     $ Stmt' a                           a else a $                  Match a
+8     $ Stmt'                             else a $                    Stmt' -> else Stmt 
+9     $ Stmt else                         else a $                    Match else
+10    $ Stmt                              a $                         Stmt -> a 
+11    $ a                                 a $                         Match a
+12    $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Stmt
+    ├── if
+    ├── Cond
+    │   └── b
+    ├── then
+    ├── Stmt
+    │   └── a
+    └── Stmt'
+        ├── else
+        └── Stmt
+            └── a
+
+==========================================================================================
+
+[String 4]  Input: if b then if b then a else a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Stmt                              if b then if b then a else a $ Stmt -> if Cond then Stmt Stmt' 
+2     $ Stmt' Stmt then Cond if           if b then if b then a else a $ Match if
+3     $ Stmt' Stmt then Cond              b then if b then a else a $ Cond -> b 
+4     $ Stmt' Stmt then b                 b then if b then a else a $ Match b
+5     $ Stmt' Stmt then                   then if b then a else a $   Match then
+6     $ Stmt' Stmt                        if b then a else a $        Stmt -> if Cond then Stmt Stmt' 
+7     $ Stmt' Stmt' Stmt then Cond if     if b then a else a $        Match if
+8     $ Stmt' Stmt' Stmt then Cond        b then a else a $           Cond -> b 
+9     $ Stmt' Stmt' Stmt then b           b then a else a $           Match b
+10    $ Stmt' Stmt' Stmt then             then a else a $             Match then
+11    $ Stmt' Stmt' Stmt                  a else a $                  Stmt -> a 
+12    $ Stmt' Stmt' a                     a else a $                  Match a
+13    $ Stmt' Stmt'                       else a $                    Stmt' -> else Stmt 
+14    $ Stmt' Stmt else                   else a $                    Match else
+15    $ Stmt' Stmt                        a $                         Stmt -> a 
+16    $ Stmt' a                           a $                         Match a
+17    $ Stmt'                             $                           Stmt' -> ε 
+18    $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Stmt
+    ├── if
+    ├── Cond
+    │   └── b
+    ├── then
+    ├── Stmt
+    │   ├── if
+    │   ├── Cond
+    │   │   └── b
+    │   ├── then
+    │   ├── Stmt
+    │   │   └── a
+    │   └── Stmt'
+    │       ├── else
+    │       └── Stmt
+    │           └── a
+    └── Stmt'
+        └── ε
+
+==========================================================================================
+
+Summary: 4 accepted, 0 rejected out of 4 string(s).

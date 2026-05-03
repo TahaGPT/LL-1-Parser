@@ -1,0 +1,36 @@
+Parsing Trace  |  Source: input/grammar4_edge_cases.txt
+==========================================================================================
+
+[String 1]  Input: b d c a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             b d c a $                   Start -> b Start' 
+2     $ Start' b                          b d c a $                   Match b
+3     $ Start'                            d c a $                     Start' -> d Alpha' a Start' 
+4     $ Start' a Alpha' d                 d c a $                     Match d
+5     $ Start' a Alpha'                   c a $                       Alpha' -> c Alpha' 
+6     $ Start' a Alpha' c                 c a $                       Match c
+7     $ Start' a Alpha'                   a $                         Alpha' -> ε 
+8     $ Start' a                          a $                         Match a
+9     $ Start'                            $                           Start' -> ε 
+10    $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Start
+    ├── b
+    └── Start'
+        ├── d
+        ├── Alpha'
+        │   ├── c
+        │   └── Alpha'
+        │       └── ε
+        ├── a
+        └── Start'
+            └── ε
+
+==========================================================================================
+
+Summary: 1 accepted, 0 rejected out of 1 string(s).

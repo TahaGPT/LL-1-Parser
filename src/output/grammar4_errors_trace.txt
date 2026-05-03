@@ -1,0 +1,52 @@
+Parsing Trace  |  Source: input/grammar4_errors.txt
+==========================================================================================
+
+[String 1]  Input: c 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             c $                         Start -> Alpha' a Start' 
+2     $ Start' a Alpha'                   c $                         Alpha' -> c Alpha' 
+3     $ Start' a Alpha' c                 c $                         Match c
+  [ERROR step 4] Premature end of input; expected 'Alpha''
+4     $ Start' a Alpha'                   $                           [RECOVERY] Pop Alpha'
+  [ERROR step 5] Premature end of input; expected 'a'
+5     $ Start' a                          $                           [RECOVERY] Pop a
+6     $ Start'                            $                           Start' -> ε 
+7     $                                   $                           Accept (with errors)
+
+Result: REJECTED (2 error(s))
+
+==========================================================================================
+
+[String 2]  Input: d 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+  [ERROR step 1] Expected 'Start', found 'd'
+1     $ Start                             d $                         [RECOVERY] Skip 'd'
+  [ERROR step 2] Premature end of input; expected 'Start'
+2     $ Start                             $                           [RECOVERY] Pop Start
+3     $                                   $                           Accept (with errors)
+
+Result: REJECTED (2 error(s))
+
+==========================================================================================
+
+[String 3]  Input: a a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             a a $                       Start -> Alpha' a Start' 
+2     $ Start' a Alpha'                   a a $                       Alpha' -> ε 
+3     $ Start' a                          a a $                       Match a
+  [ERROR step 4] Expected 'Start'', found 'a'
+4     $ Start'                            a $                         [RECOVERY] Skip 'a'
+5     $ Start'                            $                           Start' -> ε 
+6     $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+Summary: 0 accepted, 3 rejected out of 3 string(s).
