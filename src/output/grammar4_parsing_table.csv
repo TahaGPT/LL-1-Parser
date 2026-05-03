@@ -1,4 +1,4 @@
 NT/T,"$","a","b","c","d",
 "Alpha",,"Alpha->Alpha'","Alpha->bdAlpha'","Alpha->Alpha'",,
-"Alpha'",,"Alpha'->adAlpha'",,"Alpha'->cAlpha'",,
-"Start",,"Start->Alphaa","Start->Alphaa","Start->Alphaa",,
+"Alpha'",,"Alpha'->adAlpha' | Alpha'->ε",,"Alpha'->cAlpha'",,
+"Start",,"Start->Alphaa","Start->Alphaa | Start->b","Start->Alphaa",,

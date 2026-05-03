@@ -4,7 +4,7 @@
 using namespace std;
  
 // global ll(1) parsing table
-extern map<string, map<string, Production>> table;
+extern map<string, map<string, vector<Production>>> table;
  
 // helpers
 set<string> getterminals(Grammar &g);

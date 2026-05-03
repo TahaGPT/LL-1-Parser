@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-map<string, map<string, Production>> table;
+map<string, map<string, vector<Production>>> table;
 
 // -------------------- helpers --------------------
 
@@ -29,14 +29,7 @@ bool buildtable(Grammar &g) {
     table.clear();
     bool ok = true;
 
-    // Track which cells were filled by a non-nullable (pass-1) production.
-    // When a nullable production later tries to fill the same cell via FOLLOW,
-    // that is the standard "prefer shift" disambiguation (dangling-else style)
-    // and must NOT be counted as a genuine LL(1) conflict.
-    map<string, map<string, bool>> filledByNonNull;
-
     for (auto &[A, prods] : g) {
-
         // Pass 1: non-nullable productions (FIRST does not contain ε)
         for (auto &p : prods) {
             auto f = firstprod(p);
@@ -44,13 +37,9 @@ bool buildtable(Grammar &g) {
 
             for (auto &a : f) {
                 if (a == "ε") continue;
-                // FIX: If cell is not empty, there's a conflict (LL(1) violation)
                 if (!table[A][a].empty())
-                    ok = false;
-                if (table[A][a].empty()) {
-                    table[A][a] = p;
-                    filledByNonNull[A][a] = true;
-                }
+                    ok = false; // LL(1) conflict
+                table[A][a].push_back(p);
             }
         }
 
@@ -62,23 +51,25 @@ bool buildtable(Grammar &g) {
             // non-ε terminals in FIRST(p)
             for (auto &a : f) {
                 if (a == "ε") continue;
-                // FIX: If cell is not empty, there's a conflict (LL(1) violation)
-                if (!table[A][a].empty())
-                    ok = false;
-                if (table[A][a].empty()) {
-                    table[A][a] = p;
-                    filledByNonNull[A][a] = true;
+                
+                bool found = false;
+                for (auto &ex : table[A][a]) if (ex == p) { found = true; break; }
+                if (!found) {
+                    if (!table[A][a].empty())
+                        ok = false;
+                    table[A][a].push_back(p);
                 }
             }
 
-            // FOLLOW cells — skip cells already claimed by a non-nullable production
+            // FOLLOW cells
             for (auto &b : FOLLOW[A]) {
-                if (filledByNonNull[A][b]) continue;   // non-nullable wins; not a conflict
-                // FIX: If cell is not empty, there's a conflict (LL(1) violation)
-                if (!table[A][b].empty())
-                    ok = false;
-                if (table[A][b].empty())
-                    table[A][b] = p;
+                bool found = false;
+                for (auto &ex : table[A][b]) if (ex == p) { found = true; break; }
+                if (!found) {
+                    if (!table[A][b].empty())
+                        ok = false;
+                    table[A][b].push_back(p);
+                }
             }
         }
     }
@@ -98,9 +89,12 @@ void printtable(Grammar &g, ostream &out) {
     for (auto &[A, _] : g) {
         out << A << "\t";
         for (auto &t : terminals) {
-            if (table[A].count(t)) {
-                out << A << "->";
-                for (auto &s : table[A][t]) out << s;
+            if (table[A].count(t) && !table[A][t].empty()) {
+                for (size_t i = 0; i < table[A][t].size(); i++) {
+                    if (i > 0) out << " | ";
+                    out << A << "->";
+                    for (auto &s : table[A][t][i]) out << s;
+                }
             }
             out << "\t";
         }
@@ -121,9 +115,13 @@ void savetabletocsv(Grammar &g, const string &filename) {
     for (auto &[A, _] : g) {
         file << "\"" << A << "\",";
         for (auto &t : terminals) {
-            if (table[A].count(t)) {
-                file << "\"" << A << "->";
-                for (auto &s : table[A][t]) file << s;
+            if (table[A].count(t) && !table[A][t].empty()) {
+                file << "\"";
+                for (size_t i = 0; i < table[A][t].size(); i++) {
+                    if (i > 0) file << " | ";
+                    file << A << "->";
+                    for (auto &s : table[A][t][i]) file << s;
+                }
                 file << "\"";
             }
             file << ",";
@@ -218,9 +216,16 @@ parseresult parsestring(const string &start, vector<string> tokens, ostream &out
 
         // case 3: top is non-terminal, look up table
         if (!isTerminal(X) && X != "$") {
-            if (table[X].count(a)) {
-                Production prod = table[X][a];
-                NodePtr    node = wstack.back().node;
+            if (table.count(X) && table[X].count(a) && !table[X][a].empty()) {
+                // Fallback for conflicts: pick first, but prefer one starting with current terminal
+                Production prod = table[X][a][0];
+                for (auto &p : table[X][a]) {
+                    if (!p.empty() && p[0] == a) {
+                        prod = p;
+                        break;
+                    }
+                }
+                NodePtr node = wstack.back().node;
 
                 // build action string
                 string act = X + " -> ";
