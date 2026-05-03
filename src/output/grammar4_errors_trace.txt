@@ -39,19 +39,13 @@ Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
 1     $ Start                             a a $                       Start -> Alpha a 
 2     $ a Alpha                           a a $                       Alpha -> Alpha' 
-3     $ a Alpha'                          a a $                       Alpha' -> a d Alpha' 
-4     $ a Alpha' d a                      a a $                       Match a
-  [ERROR step 5] Expected 'd', found 'a'
-5     $ a Alpha' d                        a $                         [RECOVERY] Skip 'a'
-  [ERROR step 6] Premature end of input; expected 'd'
-6     $ a Alpha' d                        $                           [RECOVERY] Pop d
-  [ERROR step 7] Premature end of input; expected 'Alpha''
-7     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
-  [ERROR step 8] Premature end of input; expected 'a'
-8     $ a                                 $                           [RECOVERY] Pop a
-9     $                                   $                           Accept (with errors)
+3     $ a Alpha'                          a a $                       Alpha' -> ε 
+4     $ a                                 a a $                       Match a
+  [ERROR step 5] Extra input 'a' after end of accepted string
+5     $                                   a $                         [RECOVERY] Skip 'a'
+6     $                                   $                           Accept (with errors)
 
-Result: REJECTED (4 error(s))
+Result: REJECTED (1 error(s))
 
 ==========================================================================================
 

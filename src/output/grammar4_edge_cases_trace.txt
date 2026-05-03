@@ -5,18 +5,29 @@ Parsing Trace  |  Source: input/grammar4_edge_cases.txt
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             b d c a $                   Start -> b 
-2     $ b                                 b d c a $                   Match b
-  [ERROR step 3] Extra input 'd' after end of accepted string
-3     $                                   d c a $                     [RECOVERY] Skip 'd'
-  [ERROR step 4] Extra input 'c' after end of accepted string
-4     $                                   c a $                       [RECOVERY] Skip 'c'
-  [ERROR step 5] Extra input 'a' after end of accepted string
-5     $                                   a $                         [RECOVERY] Skip 'a'
-6     $                                   $                           Accept (with errors)
+1     $ Start                             b d c a $                   Start -> Alpha a 
+2     $ a Alpha                           b d c a $                   Alpha -> b d Alpha' 
+3     $ a Alpha' d b                      b d c a $                   Match b
+4     $ a Alpha' d                        d c a $                     Match d
+5     $ a Alpha'                          c a $                       Alpha' -> c Alpha' 
+6     $ a Alpha' c                        c a $                       Match c
+7     $ a Alpha'                          a $                         Alpha' -> ε 
+8     $ a                                 a $                         Match a
+9     $                                   $                           Accept
 
-Result: REJECTED (3 error(s))
+Result: ACCEPTED
+
+Parse Tree:
+└── Start
+    ├── Alpha
+    │   ├── b
+    │   ├── d
+    │   └── Alpha'
+    │       ├── c
+    │       └── Alpha'
+    │           └── ε
+    └── a
 
 ==========================================================================================
 
-Summary: 0 accepted, 1 rejected out of 1 string(s).
+Summary: 1 accepted, 0 rejected out of 1 string(s).

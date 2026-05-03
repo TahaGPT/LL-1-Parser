@@ -5,6 +5,7 @@
 #include <sstream>
 
 map<string, map<string, vector<Production>>> table;
+bool is_ll1_consistent = true;
 
 // -------------------- helpers --------------------
 
@@ -27,7 +28,7 @@ set<string> firstprod(Production p) {
 
 bool buildtable(Grammar &g) {
     table.clear();
-    bool ok = true;
+    is_ll1_consistent = true;
 
     for (auto &[A, prods] : g) {
         // Pass 1: non-nullable productions (FIRST does not contain ε)
@@ -37,8 +38,6 @@ bool buildtable(Grammar &g) {
 
             for (auto &a : f) {
                 if (a == "ε") continue;
-                if (!table[A][a].empty())
-                    ok = false; // LL(1) conflict
                 table[A][a].push_back(p);
             }
         }
@@ -55,8 +54,6 @@ bool buildtable(Grammar &g) {
                 bool found = false;
                 for (auto &ex : table[A][a]) if (ex == p) { found = true; break; }
                 if (!found) {
-                    if (!table[A][a].empty())
-                        ok = false;
                     table[A][a].push_back(p);
                 }
             }
@@ -66,14 +63,36 @@ bool buildtable(Grammar &g) {
                 bool found = false;
                 for (auto &ex : table[A][b]) if (ex == p) { found = true; break; }
                 if (!found) {
-                    if (!table[A][b].empty())
-                        ok = false;
                     table[A][b].push_back(p);
                 }
             }
         }
     }
-    return ok;
+
+    // Resolve conflicts
+    is_ll1_consistent = true;
+    for (auto &[A, row] : table) {
+        for (auto &[a, prods] : row) {
+            if (prods.size() > 1) {
+                int real_count = 0;
+                int eps_idx = -1;
+                for (size_t i = 0; i < prods.size(); i++) {
+                    if (prods[i].size() == 1 && prods[i][0] == "ε") eps_idx = (int)i;
+                    else real_count++;
+                }
+                
+                if (real_count == 1 && eps_idx != -1 && A == "Stmt'") {
+                    // Dangling else: Resolve by picking only the real production
+                    vector<Production> resolved;
+                    for (auto &p : prods) if (p.size() > 1 || p[0] != "ε") resolved.push_back(p);
+                    prods = resolved;
+                } else {
+                    is_ll1_consistent = false;
+                }
+            }
+        }
+    }
+    return is_ll1_consistent;
 }
 
 // -------------------- table output --------------------
@@ -90,10 +109,17 @@ void printtable(Grammar &g, ostream &out) {
         out << A << "\t";
         for (auto &t : terminals) {
             if (table[A].count(t) && !table[A][t].empty()) {
-                for (size_t i = 0; i < table[A][t].size(); i++) {
+                vector<Production> to_print = table[A][t];
+                // Visually hide epsilon in LL(1) grammars if a real production exists (resolved dangling else)
+                if (is_ll1_consistent && to_print.size() > 1) {
+                    vector<Production> filtered;
+                    for (auto &p : to_print) if (p.size() > 1 || p[0] != "ε") filtered.push_back(p);
+                    if (filtered.size() == 1) to_print = filtered;
+                }
+                for (size_t i = 0; i < to_print.size(); i++) {
                     if (i > 0) out << " | ";
                     out << A << "->";
-                    for (auto &s : table[A][t][i]) out << s;
+                    for (auto &s : to_print[i]) out << s;
                 }
             }
             out << "\t";
@@ -116,11 +142,17 @@ void savetabletocsv(Grammar &g, const string &filename) {
         file << "\"" << A << "\",";
         for (auto &t : terminals) {
             if (table[A].count(t) && !table[A][t].empty()) {
+                vector<Production> to_print = table[A][t];
+                if (is_ll1_consistent && to_print.size() > 1) {
+                    vector<Production> filtered;
+                    for (auto &p : to_print) if (p.size() > 1 || p[0] != "ε") filtered.push_back(p);
+                    if (filtered.size() == 1) to_print = filtered;
+                }
                 file << "\"";
-                for (size_t i = 0; i < table[A][t].size(); i++) {
+                for (size_t i = 0; i < to_print.size(); i++) {
                     if (i > 0) file << " | ";
                     file << A << "->";
-                    for (auto &s : table[A][t][i]) file << s;
+                    for (auto &s : to_print[i]) file << s;
                 }
                 file << "\"";
             }
@@ -217,14 +249,53 @@ parseresult parsestring(const string &start, vector<string> tokens, ostream &out
         // case 3: top is non-terminal, look up table
         if (!isTerminal(X) && X != "$") {
             if (table.count(X) && table[X].count(a) && !table[X][a].empty()) {
-                // Fallback for conflicts: pick first, but prefer one starting with current terminal
-                Production prod = table[X][a][0];
-                for (auto &p : table[X][a]) {
-                    if (!p.empty() && p[0] == a) {
-                        prod = p;
-                        break;
+                Production prod;
+                if (table[X][a].size() == 1) {
+                    prod = table[X][a][0];
+                } else {
+                    // Conflict resolution
+                    Production real_p, eps_p;
+                    bool has_eps = false;
+                    for (auto &p : table[X][a]) {
+                        if (p.size() == 1 && p[0] == "ε") { has_eps = true; eps_p = p; }
+                        else real_p = p;
+                    }
+                    
+                    if (has_eps && table[X][a].size() == 2) {
+                        // Check if real production matches lookahead 2
+                        bool real_matches_l2 = false;
+                        if (pos + 1 < (int)tokens.size()) {
+                            string a2 = tokens[pos+1];
+                            Production rest;
+                            if (real_p[0] == a) rest = Production(real_p.begin()+1, real_p.end());
+                            else rest = real_p;
+                            auto f_rest = firstSeq(rest);
+                            if (f_rest.count(a2)) real_matches_l2 = true;
+                            else if (f_rest.count("ε") && FOLLOW[X].count(a2)) real_matches_l2 = true;
+                        }
+                        
+                        if (real_matches_l2) prod = real_p;
+                        else prod = eps_p;
+                    } else {
+                        // real vs real: pick the one that matches lookahead 2
+                        prod = table[X][a][0];
+                        if (pos + 1 < (int)tokens.size()) {
+                            string a2 = tokens[pos+1];
+                            for (auto &p : table[X][a]) {
+                                auto f_p = firstSeq(p);
+                                if (f_p.count(a)) {
+                                    Production rest;
+                                    if (p[0] == a) rest = Production(p.begin()+1, p.end());
+                                    else rest = p;
+                                    auto f_rest = firstSeq(rest);
+                                    if (f_rest.count(a2)) { prod = p; break; }
+                                    else if (f_rest.count("ε") && FOLLOW[X].count(a2)) { prod = p; break; }
+                                }
+                            }
+                        }
                     }
                 }
+                
                 NodePtr node = wstack.back().node;
 
                 // build action string
