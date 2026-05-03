@@ -1,0 +1,94 @@
+Parsing Trace  |  Source: input/grammar2_errors.txt
+==========================================================================================
+
+[String 1]  Input: id + * id 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              id + * id $                 Expr -> Term Expr' 
+2     $ Expr' Term                        id + * id $                 Term -> id Term' 
+3     $ Expr' Term' id                    id + * id $                 Match id
+4     $ Expr' Term'                       + * id $                    Term' -> ε 
+5     $ Expr'                             + * id $                    Expr' -> + Term Expr' 
+6     $ Expr' Term +                      + * id $                    Match +
+  [ERROR step 7] Expected 'Term', found '*'
+7     $ Expr' Term                        * id $                      [RECOVERY] Skip '*'
+8     $ Expr' Term                        id $                        Term -> id Term' 
+9     $ Expr' Term' id                    id $                        Match id
+10    $ Expr' Term'                       $                           Term' -> ε 
+11    $ Expr'                             $                           Expr' -> ε 
+12    $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+[String 2]  Input: id + id + 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              id + id + $                 Expr -> Term Expr' 
+2     $ Expr' Term                        id + id + $                 Term -> id Term' 
+3     $ Expr' Term' id                    id + id + $                 Match id
+4     $ Expr' Term'                       + id + $                    Term' -> ε 
+5     $ Expr'                             + id + $                    Expr' -> + Term Expr' 
+6     $ Expr' Term +                      + id + $                    Match +
+7     $ Expr' Term                        id + $                      Term -> id Term' 
+8     $ Expr' Term' id                    id + $                      Match id
+9     $ Expr' Term'                       + $                         Term' -> ε 
+10    $ Expr'                             + $                         Expr' -> + Term Expr' 
+11    $ Expr' Term +                      + $                         Match +
+  [ERROR step 12] Premature end of input; expected 'Term'
+12    $ Expr' Term                        $                           [RECOVERY] Pop Term
+13    $ Expr'                             $                           Expr' -> ε 
+14    $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+[String 3]  Input: ( id + id 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              ( id + id $                 Expr -> Term Expr' 
+2     $ Expr' Term                        ( id + id $                 Term -> ( Expr ) Term' 
+3     $ Expr' Term' ) Expr (              ( id + id $                 Match (
+4     $ Expr' Term' ) Expr                id + id $                   Expr -> Term Expr' 
+5     $ Expr' Term' ) Expr' Term          id + id $                   Term -> id Term' 
+6     $ Expr' Term' ) Expr' Term' id      id + id $                   Match id
+7     $ Expr' Term' ) Expr' Term'         + id $                      Term' -> ε 
+8     $ Expr' Term' ) Expr'               + id $                      Expr' -> + Term Expr' 
+9     $ Expr' Term' ) Expr' Term +        + id $                      Match +
+10    $ Expr' Term' ) Expr' Term          id $                        Term -> id Term' 
+11    $ Expr' Term' ) Expr' Term' id      id $                        Match id
+12    $ Expr' Term' ) Expr' Term'         $                           Term' -> ε 
+13    $ Expr' Term' ) Expr'               $                           Expr' -> ε 
+  [ERROR step 14] Premature end of input; expected ')'
+14    $ Expr' Term' )                     $                           [RECOVERY] Pop )
+15    $ Expr' Term'                       $                           Term' -> ε 
+16    $ Expr'                             $                           Expr' -> ε 
+17    $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+[String 4]  Input: id id 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              id id $                     Expr -> Term Expr' 
+2     $ Expr' Term                        id id $                     Term -> id Term' 
+3     $ Expr' Term' id                    id id $                     Match id
+  [ERROR step 4] Expected 'Term'', found 'id'
+4     $ Expr' Term'                       id $                        [RECOVERY] Skip 'id'
+5     $ Expr' Term'                       $                           Term' -> ε 
+6     $ Expr'                             $                           Expr' -> ε 
+7     $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+Summary: 0 accepted, 4 rejected out of 4 string(s).

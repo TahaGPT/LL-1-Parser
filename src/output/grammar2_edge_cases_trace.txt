@@ -1,0 +1,120 @@
+Parsing Trace  |  Source: input/grammar2_edge_cases.txt
+==========================================================================================
+
+[String 1]  Input: id 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              id $                        Expr -> Term Expr' 
+2     $ Expr' Term                        id $                        Term -> id Term' 
+3     $ Expr' Term' id                    id $                        Match id
+4     $ Expr' Term'                       $                           Term' -> ε 
+5     $ Expr'                             $                           Expr' -> ε 
+6     $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Expr
+    ├── Term
+    │   ├── id
+    │   └── Term'
+    │       └── ε
+    └── Expr'
+        └── ε
+
+==========================================================================================
+
+[String 2]  Input: ( ( id ) ) 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              ( ( id ) ) $                Expr -> Term Expr' 
+2     $ Expr' Term                        ( ( id ) ) $                Term -> ( Expr ) Term' 
+3     $ Expr' Term' ) Expr (              ( ( id ) ) $                Match (
+4     $ Expr' Term' ) Expr                ( id ) ) $                  Expr -> Term Expr' 
+5     $ Expr' Term' ) Expr' Term          ( id ) ) $                  Term -> ( Expr ) Term' 
+6     $ Expr' Term' ) Expr' Term' ) Expr (( id ) ) $                  Match (
+7     $ Expr' Term' ) Expr' Term' ) Expr  id ) ) $                    Expr -> Term Expr' 
+8     $ Expr' Term' ) Expr' Term' ) Expr' Termid ) ) $                    Term -> id Term' 
+9     $ Expr' Term' ) Expr' Term' ) Expr' Term' idid ) ) $                    Match id
+10    $ Expr' Term' ) Expr' Term' ) Expr' Term') ) $                       Term' -> ε 
+11    $ Expr' Term' ) Expr' Term' ) Expr' ) ) $                       Expr' -> ε 
+12    $ Expr' Term' ) Expr' Term' )       ) ) $                       Match )
+13    $ Expr' Term' ) Expr' Term'         ) $                         Term' -> ε 
+14    $ Expr' Term' ) Expr'               ) $                         Expr' -> ε 
+15    $ Expr' Term' )                     ) $                         Match )
+16    $ Expr' Term'                       $                           Term' -> ε 
+17    $ Expr'                             $                           Expr' -> ε 
+18    $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Expr
+    ├── Term
+    │   ├── (
+    │   ├── Expr
+    │   │   ├── Term
+    │   │   │   ├── (
+    │   │   │   ├── Expr
+    │   │   │   │   ├── Term
+    │   │   │   │   │   ├── id
+    │   │   │   │   │   └── Term'
+    │   │   │   │   │       └── ε
+    │   │   │   │   └── Expr'
+    │   │   │   │       └── ε
+    │   │   │   ├── )
+    │   │   │   └── Term'
+    │   │   │       └── ε
+    │   │   └── Expr'
+    │   │       └── ε
+    │   ├── )
+    │   └── Term'
+    │       └── ε
+    └── Expr'
+        └── ε
+
+==========================================================================================
+
+[String 3]  Input: id * id * id 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Expr                              id * id * id $              Expr -> Term Expr' 
+2     $ Expr' Term                        id * id * id $              Term -> id Term' 
+3     $ Expr' Term' id                    id * id * id $              Match id
+4     $ Expr' Term'                       * id * id $                 Term' -> * Factor Term' 
+5     $ Expr' Term' Factor *              * id * id $                 Match *
+6     $ Expr' Term' Factor                id * id $                   Factor -> id 
+7     $ Expr' Term' id                    id * id $                   Match id
+8     $ Expr' Term'                       * id $                      Term' -> * Factor Term' 
+9     $ Expr' Term' Factor *              * id $                      Match *
+10    $ Expr' Term' Factor                id $                        Factor -> id 
+11    $ Expr' Term' id                    id $                        Match id
+12    $ Expr' Term'                       $                           Term' -> ε 
+13    $ Expr'                             $                           Expr' -> ε 
+14    $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Expr
+    ├── Term
+    │   ├── id
+    │   └── Term'
+    │       ├── *
+    │       ├── Factor
+    │       │   └── id
+    │       └── Term'
+    │           ├── *
+    │           ├── Factor
+    │           │   └── id
+    │           └── Term'
+    │               └── ε
+    └── Expr'
+        └── ε
+
+==========================================================================================
+
+Summary: 3 accepted, 0 rejected out of 3 string(s).

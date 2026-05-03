@@ -1,0 +1,10 @@
+Grammar is LL(1)
+
+LL(1) Table:
+
+NT/T	$	)	*	+	d	id	
+( id )						( id )->id)	
+( id + id ) * id						( id + id ) * id->id+id)*id	
+id							
+id * id + id							
+id + id * id							

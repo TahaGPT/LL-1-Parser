@@ -3,6 +3,6 @@ Grammar is NOT LL(1)
 LL(1) Table:
 
 NT/T	$	a	b	c	d	
-A				A->c	A->Ba	
+A				A->Ba	A->Ba	
 B				B->cbB'	B->dB'	
-B'		B'->ε				
+B'		B'->abB'				

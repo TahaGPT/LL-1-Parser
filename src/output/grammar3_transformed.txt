@@ -1,6 +1,4 @@
-=== Original + Transformed Grammar ===
-
-After Left Factoring and Left Recursion Removal:
+=== Transformed Grammar ===
 
 Cond -> b 
 Stmt -> a | if Cond then Stmt Stmt' 

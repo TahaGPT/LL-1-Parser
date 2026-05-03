@@ -1,8 +1,6 @@
-=== Original + Transformed Grammar ===
+=== Transformed Grammar ===
 
-After Left Factoring and Left Recursion Removal:
-
-Alpha -> Start d Alpha' | ε Alpha' 
+Alpha -> Start d Alpha' | Alpha' 
 Alpha' -> c Alpha' | ε 
-Start -> ε Alpha' a Start' | b Start' 
+Start -> Alpha' a Start' | b Start' 
 Start' -> d Alpha' a Start' | ε 

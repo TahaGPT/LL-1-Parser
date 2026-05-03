@@ -1,0 +1,5 @@
+=== Transformed Grammar ===
+
+( ( id ) ) -> ( id ) ) 
+id -> d 
+id * id * id -> d * id * id 

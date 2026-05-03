@@ -3,14 +3,8 @@ FIRST:
 Cond : { b }
 Stmt : { a if }
 Stmt' : { else ε }
-a : { a }
-b : { b }
-else : { else }
-if : { if }
-then : { }
-ε : { ε }
 
 FOLLOW:
-Cond : { $ }
-Stmt : { else }
-Stmt' : { else }
+Cond : { then }
+Stmt : { $ else }
+Stmt' : { $ else }

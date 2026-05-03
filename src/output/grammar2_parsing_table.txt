@@ -4,7 +4,7 @@ LL(1) Table:
 
 NT/T	$	(	)	*	+	id	
 Expr		Expr->TermExpr'				Expr->TermExpr'	
-Expr'	Expr'->ε				Expr'->+TermExpr'		
+Expr'	Expr'->ε		Expr'->ε		Expr'->+TermExpr'		
 Factor		Factor->(Expr)				Factor->id	
 Term		Term->(Expr)Term'				Term->idTerm'	
-Term'	Term'->ε			Term'->*FactorTerm'	Term'->ε		
+Term'	Term'->ε		Term'->ε	Term'->*FactorTerm'	Term'->ε		

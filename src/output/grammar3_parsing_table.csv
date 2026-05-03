@@ -1,4 +1,4 @@
 NT/T,"$","a","b","else","if","then",
 "Cond",,,"Cond->b",,,,
 "Stmt",,"Stmt->a",,,"Stmt->ifCondthenStmtStmt'",,
-"Stmt'",,,,"Stmt'->elseStmt",,,
+"Stmt'","Stmt'->ε",,,"Stmt'->elseStmt",,,

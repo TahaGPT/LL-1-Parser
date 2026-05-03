@@ -1,0 +1,7 @@
+Grammar is LL(1)
+
+LL(1) Table:
+
+NT/T	$	a	b	
+a a				
+b b				

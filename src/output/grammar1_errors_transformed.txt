@@ -1,0 +1,4 @@
+=== Transformed Grammar ===
+
+a a -> a 
+b b -> b 

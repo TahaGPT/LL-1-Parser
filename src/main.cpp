@@ -1,126 +1,175 @@
 #include "parser.h"
 #include <filesystem>
-
+ 
 namespace fs = std::filesystem;
-
-// Derive a base name (e.g. "grammar1") from a full path like "input/grammar1.txt"
-static string baseName(const string &path) {
-    fs::path p(path);
-    return p.stem().string();   // filename without extension
+ 
+// derive base name e.g. "grammar1" from "input/grammar1.txt"
+static string basename(const string &path) {
+    return fs::path(path).stem().string();
 }
-
-static void processGrammar(const string &inputFile, const string &outputDir) {
-    // ---- Reset global state for each grammar file ----
+ 
+static void processgrammar(const string &inputfile, const string &outputdir) {
+    // Guard: skip input-string files (names containing '_') if passed directly
+    string stem = fs::path(inputfile).stem().string();
+    if (stem.find('_') != string::npos) {
+        cout << "  [SKIP] Not a grammar file: " << inputfile << "\n";
+        return;
+    }
+ 
+    // reset global state for each grammar
     FIRST.clear();
     FOLLOW.clear();
     table.clear();
-
+ 
     cout << "\n========================================\n";
-    cout << "Processing: " << inputFile << "\n";
+    cout << "Processing: " << inputfile << "\n";
     cout << "========================================\n";
-
-    Grammar g = readCFG(inputFile);
+ 
+    Grammar g = readCFG(inputfile);
     if (g.empty()) {
-        cerr << "  [ERROR] Could not read or empty grammar: " << inputFile << "\n";
+        cerr << "  [ERROR] Could not read or empty grammar: " << inputfile << "\n";
         return;
     }
-
-    string base   = baseName(inputFile);
-    string outGrm = outputDir + "/" + base + "_transformed.txt";
-    string outFF  = outputDir + "/" + base + "_first_follow.txt";
-    string outTbl = outputDir + "/" + base + "_parsing_table.txt";
-    string outCSV = outputDir + "/" + base + "_parsing_table.csv";
-
-    // ---------- Transformations ----------
+ 
+    // read start symbol: always use the first LHS declared in the file.
+    // this is unambiguous, matches the textbook convention, and survives
+    // mutual recursion where every NT appears in some other NT's RHS.
+    auto readstart = [&]() -> string {
+        ifstream ff(inputfile);
+        string ln;
+        while (getline(ff, ln)) {
+            // strip \r for windows-style line endings
+            if (!ln.empty() && ln.back() == '\r') ln.pop_back();
+            size_t arrow = ln.find("->");
+            if (arrow == string::npos) continue;
+            string lhs = ln.substr(0, arrow);
+            // trim whitespace from lhs
+            size_t a = lhs.find_first_not_of(" \t");
+            size_t b = lhs.find_last_not_of(" \t");
+            if (a == string::npos) continue;
+            return lhs.substr(a, b - a + 1);
+        }
+        return g.begin()->first; // last resort
+    };
+    string start = readstart();
+    cout << "  [Start symbol: " << start << "]\n";
+ 
+    string base    = basename(inputfile);
+    string outgrm  = outputdir + "/" + base + "_transformed.txt";
+    string outff   = outputdir + "/" + base + "_first_follow.txt";
+    string outtbl  = outputdir + "/" + base + "_parsing_table.txt";
+    string outcsv  = outputdir + "/" + base + "_parsing_table.csv";
+ 
+    // ---- part 1: transformations ----
     cout << "\nOriginal Grammar:\n";
     printGrammar(g);
-
+ 
     leftFactor(g);
     cout << "\nAfter Left Factoring:\n";
     printGrammar(g);
-
+ 
     removeLeftRecursion(g);
     cout << "\nAfter Left Recursion Removal:\n";
     printGrammar(g);
-
-    // Write grammar_transformed.txt
+ 
     {
-        ofstream f(outGrm);
-        f << "=== Original + Transformed Grammar ===\n\n";
-        f << "After Left Factoring and Left Recursion Removal:\n\n";
+        ofstream f(outgrm);
+        f << "=== Transformed Grammar ===\n\n";
         printGrammar(g, f);
     }
-    cout << "  -> Saved: " << outGrm << "\n";
-
-    // ---------- FIRST / FOLLOW ----------
+    cout << "  -> Saved: " << outgrm << "\n";
+ 
+    // ---- first / follow ----
     computeFIRST(g);
-    computeFOLLOW(g, g.begin()->first);
-
-    printFIRST();
-    printFOLLOW();
-
-    // Write first_follow_sets.txt
+    computeFOLLOW(g, start);
+ 
+    printFIRST(g);
+    printFOLLOW(g);
+ 
     {
-        ofstream f(outFF);
-        printFIRST(f);
-        printFOLLOW(f);
+        ofstream f(outff);
+        printFIRST(g, f);
+        printFOLLOW(g, f);
     }
-    cout << "  -> Saved: " << outFF << "\n";
-
-    // ---------- Parsing Table ----------
-    bool isLL1 = buildTable(g);
-    printTable(g);
-
-    // Write parsing_table.txt  (human-readable)
+    cout << "  -> Saved: " << outff << "\n";
+ 
+    // ---- parsing table ----
+    bool isll1 = buildtable(g);
+    printtable(g);
+ 
     {
-        ofstream f(outTbl);
-        f << (isLL1 ? "Grammar is LL(1)\n" : "Grammar is NOT LL(1)\n");
-        printTable(g, f);
+        ofstream f(outtbl);
+        f << (isll1 ? "Grammar is LL(1)\n" : "Grammar is NOT LL(1)\n");
+        printtable(g, f);
     }
-    cout << "  -> Saved: " << outTbl << "\n";
-
-    // Write parsing_table.csv
-    saveTableToCSV(g, outCSV);
-    cout << "  -> Saved: " << outCSV << "\n";
-
-    cout << (isLL1 ? "\nResult: LL(1)\n" : "\nResult: NOT LL(1)\n");
+    cout << "  -> Saved: " << outtbl << "\n";
+ 
+    savetabletocsv(g, outcsv);
+ 
+    cout << (isll1 ? "\nResult: LL(1)\n" : "\nResult: NOT LL(1)\n");
+ 
+    // ---- part 2: parse input strings ----
+    // look for matching input files: <base>_valid.txt, <base>_errors.txt,
+    // <base>_edge_cases.txt  (or any <base>_*.txt in same directory)
+    fs::path grammarpath(inputfile);
+    fs::path inputdir = grammarpath.parent_path();
+ 
+    vector<string> suffixes = {"_valid", "_errors", "_edge_cases"};
+    bool anyfound = false;
+ 
+    for (auto &suf : suffixes) {
+        string candidate = inputdir.string() + "/" + base + suf + ".txt";
+        if (!fs::exists(candidate)) continue;
+ 
+        anyfound = true;
+        string tag      = base + suf;
+        string tracefile = outputdir + "/" + tag + "_trace.txt";
+ 
+        cout << "\n  Parsing strings from: " << candidate << "\n";
+        runparser(start, candidate, tracefile);
+    }
+ 
+    if (!anyfound)
+        cout << "  [INFO] No input string files found for " << base
+             << " (expected input/" << base << "_valid.txt etc.)\n";
 }
-
+ 
 int main(int argc, char *argv[]) {
-    const string inputDir  = "input";
-    const string outputDir = "output";
-
-    // Create output directory if it doesn't exist
-    fs::create_directories(outputDir);
-
+    const string inputdir  = "input";
+    const string outputdir = "output";
+ 
+    fs::create_directories(outputdir);
+ 
     if (argc > 1) {
-        // Files provided on command line (from Makefile GRAMMARS variable)
         for (int i = 1; i < argc; i++)
-            processGrammar(argv[i], outputDir);
+            processgrammar(argv[i], outputdir);
     } else {
-        // Auto-discover all .txt files in input/
-        if (!fs::exists(inputDir) || !fs::is_directory(inputDir)) {
-            cerr << "No input files given and '" << inputDir
-                 << "' directory not found.\n"
+        if (!fs::exists(inputdir) || !fs::is_directory(inputdir)) {
+            cerr << "No input files given and '" << inputdir << "' not found.\n"
                  << "Usage: " << argv[0] << " [input/grammar1.txt ...]\n";
             return 1;
         }
-
+ 
         vector<string> files;
-        for (auto &entry : fs::directory_iterator(inputDir))
-            if (entry.path().extension() == ".txt")
-                files.push_back(entry.path().string());
-
+        for (auto &e : fs::directory_iterator(inputdir)) {
+            string stem = e.path().stem().string();
+            // only grammar files: .txt with no underscore in filename
+            if (e.path().extension() == ".txt" &&
+                stem.find('_') == string::npos)
+                files.push_back(e.path().string());
+        }
+ 
         sort(files.begin(), files.end());
-
+ 
         if (files.empty()) {
-            cerr << "No .txt files found in '" << inputDir << "'.\n";
+            cerr << "No grammar .txt files found in '" << inputdir << "'.\n";
             return 1;
         }
-
+ 
         for (auto &f : files)
-            processGrammar(f, outputDir);
+            processgrammar(f, outputdir);
     }
-
+ 
     return 0;
 }
+ 

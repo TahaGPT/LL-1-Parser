@@ -1,0 +1,6 @@
+
+FIRST:
+a b : { a b }
+
+FOLLOW:
+a b : { $ }

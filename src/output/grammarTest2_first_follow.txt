@@ -3,10 +3,6 @@ FIRST:
 A : { c d }
 B : { c d }
 B' : { a ε }
-a : { a }
-c : { c }
-d : { d }
-ε : { ε }
 
 FOLLOW:
 A : { $ }

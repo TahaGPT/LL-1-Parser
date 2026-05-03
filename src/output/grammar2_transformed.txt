@@ -1,6 +1,4 @@
-=== Original + Transformed Grammar ===
-
-After Left Factoring and Left Recursion Removal:
+=== Transformed Grammar ===
 
 Expr -> Term Expr' 
 Expr' -> + Term Expr' | ε 

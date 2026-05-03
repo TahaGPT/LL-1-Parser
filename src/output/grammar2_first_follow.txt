@@ -1,20 +1,14 @@
 
 FIRST:
-( : { ( }
-) : { }
-* : { * }
-+ : { + }
 Expr : { ( id }
 Expr' : { + ε }
 Factor : { ( id }
 Term : { ( id }
 Term' : { * ε }
-id : { id }
-ε : { ε }
 
 FOLLOW:
-Expr : { $ }
-Expr' : { $ }
-Factor : { $ * + }
-Term : { $ + }
-Term' : { $ + }
+Expr : { $ ) }
+Expr' : { $ ) }
+Factor : { $ ) * + }
+Term : { $ ) + }
+Term' : { $ ) + }

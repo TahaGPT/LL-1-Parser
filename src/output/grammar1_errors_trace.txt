@@ -1,0 +1,48 @@
+Parsing Trace  |  Source: input/grammar1_errors.txt
+==========================================================================================
+
+[String 1]  Input: a a 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             a a $                       Start -> a Second 
+2     $ Second a                          a a $                       Match a
+  [ERROR step 3] Expected 'Second', found 'a'
+3     $ Second                            a $                         [RECOVERY] Skip 'a'
+  [ERROR step 4] Premature end of input; expected 'Second'
+4     $ Second                            $                           [RECOVERY] Pop Second
+5     $                                   $                           Accept (with errors)
+
+Result: REJECTED (2 error(s))
+
+==========================================================================================
+
+[String 2]  Input: b b 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             b b $                       Start -> b 
+2     $ b                                 b b $                       Match b
+  [ERROR step 3] Extra input 'b' after end of accepted string
+3     $                                   b $                         [RECOVERY] Skip 'b'
+4     $                                   $                           Accept (with errors)
+
+Result: REJECTED (1 error(s))
+
+==========================================================================================
+
+[String 3]  Input: c 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+  [ERROR step 1] Expected 'Start', found 'c'
+1     $ Start                             c $                         [RECOVERY] Skip 'c'
+  [ERROR step 2] Premature end of input; expected 'Start'
+2     $ Start                             $                           [RECOVERY] Pop Start
+3     $                                   $                           Accept (with errors)
+
+Result: REJECTED (2 error(s))
+
+==========================================================================================
+
+Summary: 0 accepted, 3 rejected out of 3 string(s).

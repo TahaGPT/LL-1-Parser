@@ -1,0 +1,8 @@
+
+FIRST:
+( ( id ) ) : { ( ( id ) ) }
+id : { id }
+id * id * id : { id * id * id }
+
+FOLLOW:
+( ( id ) ) : { $ }
