@@ -1,4 +1,4 @@
 NT/T,"$","a","b",
-"First",,"First->a",,
+"First",,"First->a","First->ε",
 "Second",,,"Second->b",
-"Start",,"Start->aSecond","Start->b",
+"Start",,"Start->FirstSecond","Start->FirstSecond",

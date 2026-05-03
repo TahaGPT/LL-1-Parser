@@ -22,4 +22,4 @@ void leftFactor(Grammar &g);
  
 // Left Recursion Removal
 void removeDirect(string A, Grammar &g);
-void removeLeftRecursion(Grammar &g);
+void removeLeftRecursion(Grammar &g, const string &startSymbol);

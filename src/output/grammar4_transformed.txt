@@ -1,6 +1,5 @@
 === Transformed Grammar ===
 
-Alpha -> Start d Alpha' | Alpha' 
-Alpha' -> c Alpha' | ε 
-Start -> Alpha' a Start' | b Start' 
-Start' -> d Alpha' a Start' | ε 
+Alpha -> b d Alpha' | Alpha' 
+Alpha' -> c Alpha' | a d Alpha' | ε 
+Start -> Alpha a | b 

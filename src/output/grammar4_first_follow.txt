@@ -1,12 +1,10 @@
 
 FIRST:
 Alpha : { a b c ε }
-Alpha' : { c ε }
+Alpha' : { a c ε }
 Start : { a b c }
-Start' : { d ε }
 
 FOLLOW:
-Alpha : { }
+Alpha : { a }
 Alpha' : { a }
-Start : { $ d }
-Start' : { $ d }
+Start : { $ }

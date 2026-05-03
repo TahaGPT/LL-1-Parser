@@ -3,7 +3,6 @@ Grammar is NOT LL(1)
 LL(1) Table:
 
 NT/T	$	a	b	c	d	
-Alpha		Alpha->StartdAlpha'	Alpha->StartdAlpha'	Alpha->StartdAlpha'		
-Alpha'		Alpha'->ε		Alpha'->cAlpha'		
-Start		Start->Alpha'aStart'	Start->bStart'	Start->Alpha'aStart'		
-Start'	Start'->ε				Start'->dAlpha'aStart'	
+Alpha		Alpha->Alpha'	Alpha->bdAlpha'	Alpha->Alpha'		
+Alpha'		Alpha'->adAlpha'		Alpha'->cAlpha'		
+Start		Start->Alphaa	Start->Alphaa	Start->Alphaa		

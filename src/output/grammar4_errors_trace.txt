@@ -5,14 +5,14 @@ Parsing Trace  |  Source: input/grammar4_errors.txt
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             c $                         Start -> Alpha' a Start' 
-2     $ Start' a Alpha'                   c $                         Alpha' -> c Alpha' 
-3     $ Start' a Alpha' c                 c $                         Match c
-  [ERROR step 4] Premature end of input; expected 'Alpha''
-4     $ Start' a Alpha'                   $                           [RECOVERY] Pop Alpha'
-  [ERROR step 5] Premature end of input; expected 'a'
-5     $ Start' a                          $                           [RECOVERY] Pop a
-6     $ Start'                            $                           Start' -> ε 
+1     $ Start                             c $                         Start -> Alpha a 
+2     $ a Alpha                           c $                         Alpha -> Alpha' 
+3     $ a Alpha'                          c $                         Alpha' -> c Alpha' 
+4     $ a Alpha' c                        c $                         Match c
+  [ERROR step 5] Premature end of input; expected 'Alpha''
+5     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 6] Premature end of input; expected 'a'
+6     $ a                                 $                           [RECOVERY] Pop a
 7     $                                   $                           Accept (with errors)
 
 Result: REJECTED (2 error(s))
@@ -37,15 +37,21 @@ Result: REJECTED (2 error(s))
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             a a $                       Start -> Alpha' a Start' 
-2     $ Start' a Alpha'                   a a $                       Alpha' -> ε 
-3     $ Start' a                          a a $                       Match a
-  [ERROR step 4] Expected 'Start'', found 'a'
-4     $ Start'                            a $                         [RECOVERY] Skip 'a'
-5     $ Start'                            $                           Start' -> ε 
-6     $                                   $                           Accept (with errors)
+1     $ Start                             a a $                       Start -> Alpha a 
+2     $ a Alpha                           a a $                       Alpha -> Alpha' 
+3     $ a Alpha'                          a a $                       Alpha' -> a d Alpha' 
+4     $ a Alpha' d a                      a a $                       Match a
+  [ERROR step 5] Expected 'd', found 'a'
+5     $ a Alpha' d                        a $                         [RECOVERY] Skip 'a'
+  [ERROR step 6] Premature end of input; expected 'd'
+6     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 7] Premature end of input; expected 'Alpha''
+7     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 8] Premature end of input; expected 'a'
+8     $ a                                 $                           [RECOVERY] Pop a
+9     $                                   $                           Accept (with errors)
 
-Result: REJECTED (1 error(s))
+Result: REJECTED (4 error(s))
 
 ==========================================================================================
 

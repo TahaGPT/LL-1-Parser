@@ -5,24 +5,8 @@ Parsing Trace  |  Source: input/grammar1_edge_cases.txt
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             b $                         Start -> b 
-2     $ b                                 b $                         Match b
-3     $                                   $                           Accept
-
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    └── b
-
-==========================================================================================
-
-[String 2]  Input: a b 
-------------------------------------------------------------------------------------------
-Step  Stack (bottom->top)                 Input                       Action
-------------------------------------------------------------------------------------------
-1     $ Start                             a b $                       Start -> a Second 
-2     $ Second a                          a b $                       Match a
+1     $ Start                             b $                         Start -> First Second 
+2     $ Second First                      b $                         First -> ε 
 3     $ Second                            b $                         Second -> b 
 4     $ b                                 b $                         Match b
 5     $                                   $                           Accept
@@ -31,7 +15,30 @@ Result: ACCEPTED
 
 Parse Tree:
 └── Start
-    ├── a
+    ├── First
+    │   └── ε
+    └── Second
+        └── b
+
+==========================================================================================
+
+[String 2]  Input: a b 
+------------------------------------------------------------------------------------------
+Step  Stack (bottom->top)                 Input                       Action
+------------------------------------------------------------------------------------------
+1     $ Start                             a b $                       Start -> First Second 
+2     $ Second First                      a b $                       First -> a 
+3     $ Second a                          a b $                       Match a
+4     $ Second                            b $                         Second -> b 
+5     $ b                                 b $                         Match b
+6     $                                   $                           Accept
+
+Result: ACCEPTED
+
+Parse Tree:
+└── Start
+    ├── First
+    │   └── a
     └── Second
         └── b
 

@@ -167,20 +167,26 @@ void removeDirect(string A, Grammar &g) {
     g[A1] = newA1;
 }
  
-void removeLeftRecursion(Grammar &g) {
+void removeLeftRecursion(Grammar &g, const string &startSymbol) {
     // Collect non-terminals in a stable order.
+    // Ensure the start symbol is the first non-terminal evaluated so that it
+    // is substituted into others, correctly breaking indirect left recursion loops
+    // and preventing unnecessary substitution for grammars without left recursion.
     // Non-terminals introduced by left factoring (containing "'") are appended
-    // after the original ones so they are processed last and are never
-    // substituted INTO original non-terminals, avoiding spurious expansions.
+    // after the original ones so they are processed last.
     vector<string> originals, primed;
     for (auto &p : g) {
         if (p.first.find('\'') != string::npos)
             primed.push_back(p.first);
-        else
+        else if (p.first != startSymbol)
             originals.push_back(p.first);
     }
+    
     // stable sort each group alphabetically (map gives alphabetical order)
     vector<string> nts;
+    if (g.count(startSymbol)) {
+        nts.push_back(startSymbol);
+    }
     nts.insert(nts.end(), originals.begin(), originals.end());
     nts.insert(nts.end(), primed.begin(),    primed.end());
  

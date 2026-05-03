@@ -5,21 +5,19 @@ Parsing Trace  |  Source: input/grammar4_valid.txt
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             a $                         Start -> Alpha' a Start' 
-2     $ Start' a Alpha'                   a $                         Alpha' -> ε 
-3     $ Start' a                          a $                         Match a
-4     $ Start'                            $                           Start' -> ε 
-5     $                                   $                           Accept
+1     $ Start                             a $                         Start -> Alpha a 
+2     $ a Alpha                           a $                         Alpha -> Alpha' 
+3     $ a Alpha'                          a $                         Alpha' -> a d Alpha' 
+4     $ a Alpha' d a                      a $                         Match a
+  [ERROR step 5] Premature end of input; expected 'd'
+5     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 6] Premature end of input; expected 'Alpha''
+6     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 7] Premature end of input; expected 'a'
+7     $ a                                 $                           [RECOVERY] Pop a
+8     $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── Alpha'
-    │   └── ε
-    ├── a
-    └── Start'
-        └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
@@ -27,18 +25,18 @@ Parse Tree:
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             b $                         Start -> b Start' 
-2     $ Start' b                          b $                         Match b
-3     $ Start'                            $                           Start' -> ε 
-4     $                                   $                           Accept
+1     $ Start                             b $                         Start -> Alpha a 
+2     $ a Alpha                           b $                         Alpha -> b d Alpha' 
+3     $ a Alpha' d b                      b $                         Match b
+  [ERROR step 4] Premature end of input; expected 'd'
+4     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 5] Premature end of input; expected 'Alpha''
+5     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 6] Premature end of input; expected 'a'
+6     $ a                                 $                           [RECOVERY] Pop a
+7     $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── b
-    └── Start'
-        └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
@@ -46,25 +44,21 @@ Parse Tree:
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             c a $                       Start -> Alpha' a Start' 
-2     $ Start' a Alpha'                   c a $                       Alpha' -> c Alpha' 
-3     $ Start' a Alpha' c                 c a $                       Match c
-4     $ Start' a Alpha'                   a $                         Alpha' -> ε 
-5     $ Start' a                          a $                         Match a
-6     $ Start'                            $                           Start' -> ε 
-7     $                                   $                           Accept
+1     $ Start                             c a $                       Start -> Alpha a 
+2     $ a Alpha                           c a $                       Alpha -> Alpha' 
+3     $ a Alpha'                          c a $                       Alpha' -> c Alpha' 
+4     $ a Alpha' c                        c a $                       Match c
+5     $ a Alpha'                          a $                         Alpha' -> a d Alpha' 
+6     $ a Alpha' d a                      a $                         Match a
+  [ERROR step 7] Premature end of input; expected 'd'
+7     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 8] Premature end of input; expected 'Alpha''
+8     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 9] Premature end of input; expected 'a'
+9     $ a                                 $                           [RECOVERY] Pop a
+10    $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── Alpha'
-    │   ├── c
-    │   └── Alpha'
-    │       └── ε
-    ├── a
-    └── Start'
-        └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
@@ -72,30 +66,22 @@ Parse Tree:
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             a d a $                     Start -> Alpha' a Start' 
-2     $ Start' a Alpha'                   a d a $                     Alpha' -> ε 
-3     $ Start' a                          a d a $                     Match a
-4     $ Start'                            d a $                       Start' -> d Alpha' a Start' 
-5     $ Start' a Alpha' d                 d a $                       Match d
-6     $ Start' a Alpha'                   a $                         Alpha' -> ε 
-7     $ Start' a                          a $                         Match a
-8     $ Start'                            $                           Start' -> ε 
-9     $                                   $                           Accept
+1     $ Start                             a d a $                     Start -> Alpha a 
+2     $ a Alpha                           a d a $                     Alpha -> Alpha' 
+3     $ a Alpha'                          a d a $                     Alpha' -> a d Alpha' 
+4     $ a Alpha' d a                      a d a $                     Match a
+5     $ a Alpha' d                        d a $                       Match d
+6     $ a Alpha'                          a $                         Alpha' -> a d Alpha' 
+7     $ a Alpha' d a                      a $                         Match a
+  [ERROR step 8] Premature end of input; expected 'd'
+8     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 9] Premature end of input; expected 'Alpha''
+9     $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 10] Premature end of input; expected 'a'
+10    $ a                                 $                           [RECOVERY] Pop a
+11    $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── Alpha'
-    │   └── ε
-    ├── a
-    └── Start'
-        ├── d
-        ├── Alpha'
-        │   └── ε
-        ├── a
-        └── Start'
-            └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
@@ -103,36 +89,26 @@ Parse Tree:
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             b d c c a $                 Start -> b Start' 
-2     $ Start' b                          b d c c a $                 Match b
-3     $ Start'                            d c c a $                   Start' -> d Alpha' a Start' 
-4     $ Start' a Alpha' d                 d c c a $                   Match d
-5     $ Start' a Alpha'                   c c a $                     Alpha' -> c Alpha' 
-6     $ Start' a Alpha' c                 c c a $                     Match c
-7     $ Start' a Alpha'                   c a $                       Alpha' -> c Alpha' 
-8     $ Start' a Alpha' c                 c a $                       Match c
-9     $ Start' a Alpha'                   a $                         Alpha' -> ε 
-10    $ Start' a                          a $                         Match a
-11    $ Start'                            $                           Start' -> ε 
-12    $                                   $                           Accept
+1     $ Start                             b d c c a $                 Start -> Alpha a 
+2     $ a Alpha                           b d c c a $                 Alpha -> b d Alpha' 
+3     $ a Alpha' d b                      b d c c a $                 Match b
+4     $ a Alpha' d                        d c c a $                   Match d
+5     $ a Alpha'                          c c a $                     Alpha' -> c Alpha' 
+6     $ a Alpha' c                        c c a $                     Match c
+7     $ a Alpha'                          c a $                       Alpha' -> c Alpha' 
+8     $ a Alpha' c                        c a $                       Match c
+9     $ a Alpha'                          a $                         Alpha' -> a d Alpha' 
+10    $ a Alpha' d a                      a $                         Match a
+  [ERROR step 11] Premature end of input; expected 'd'
+11    $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 12] Premature end of input; expected 'Alpha''
+12    $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 13] Premature end of input; expected 'a'
+13    $ a                                 $                           [RECOVERY] Pop a
+14    $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── b
-    └── Start'
-        ├── d
-        ├── Alpha'
-        │   ├── c
-        │   └── Alpha'
-        │       ├── c
-        │       └── Alpha'
-        │           └── ε
-        ├── a
-        └── Start'
-            └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
-Summary: 5 accepted, 0 rejected out of 5 string(s).
+Summary: 0 accepted, 5 rejected out of 5 string(s).

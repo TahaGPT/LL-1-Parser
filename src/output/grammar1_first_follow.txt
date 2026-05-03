@@ -5,6 +5,6 @@ Second : { b }
 Start : { a b }
 
 FOLLOW:
-First : { }
+First : { b }
 Second : { $ }
 Start : { $ }

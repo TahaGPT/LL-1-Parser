@@ -68,7 +68,7 @@ static void processgrammar(const string &inputfile, const string &outputdir) {
     cout << "\nAfter Left Factoring:\n";
     printGrammar(g);
  
-    removeLeftRecursion(g);
+    removeLeftRecursion(g, start);
     cout << "\nAfter Left Recursion Removal:\n";
     printGrammar(g);
  

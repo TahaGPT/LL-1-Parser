@@ -5,32 +5,24 @@ Parsing Trace  |  Source: input/grammar4_edge_cases.txt
 ------------------------------------------------------------------------------------------
 Step  Stack (bottom->top)                 Input                       Action
 ------------------------------------------------------------------------------------------
-1     $ Start                             b d c a $                   Start -> b Start' 
-2     $ Start' b                          b d c a $                   Match b
-3     $ Start'                            d c a $                     Start' -> d Alpha' a Start' 
-4     $ Start' a Alpha' d                 d c a $                     Match d
-5     $ Start' a Alpha'                   c a $                       Alpha' -> c Alpha' 
-6     $ Start' a Alpha' c                 c a $                       Match c
-7     $ Start' a Alpha'                   a $                         Alpha' -> ε 
-8     $ Start' a                          a $                         Match a
-9     $ Start'                            $                           Start' -> ε 
-10    $                                   $                           Accept
+1     $ Start                             b d c a $                   Start -> Alpha a 
+2     $ a Alpha                           b d c a $                   Alpha -> b d Alpha' 
+3     $ a Alpha' d b                      b d c a $                   Match b
+4     $ a Alpha' d                        d c a $                     Match d
+5     $ a Alpha'                          c a $                       Alpha' -> c Alpha' 
+6     $ a Alpha' c                        c a $                       Match c
+7     $ a Alpha'                          a $                         Alpha' -> a d Alpha' 
+8     $ a Alpha' d a                      a $                         Match a
+  [ERROR step 9] Premature end of input; expected 'd'
+9     $ a Alpha' d                        $                           [RECOVERY] Pop d
+  [ERROR step 10] Premature end of input; expected 'Alpha''
+10    $ a Alpha'                          $                           [RECOVERY] Pop Alpha'
+  [ERROR step 11] Premature end of input; expected 'a'
+11    $ a                                 $                           [RECOVERY] Pop a
+12    $                                   $                           Accept (with errors)
 
-Result: ACCEPTED
-
-Parse Tree:
-└── Start
-    ├── b
-    └── Start'
-        ├── d
-        ├── Alpha'
-        │   ├── c
-        │   └── Alpha'
-        │       └── ε
-        ├── a
-        └── Start'
-            └── ε
+Result: REJECTED (3 error(s))
 
 ==========================================================================================
 
-Summary: 1 accepted, 0 rejected out of 1 string(s).
+Summary: 0 accepted, 1 rejected out of 1 string(s).

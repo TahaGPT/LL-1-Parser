@@ -2,4 +2,4 @@
 
 First -> a | ε 
 Second -> b 
-Start -> a Second | b 
+Start -> First Second 
